@@ -8,7 +8,8 @@ const expenseSchema = new mongoose.Schema({
     },
     date: {
       type: Date,
-      required: true
+      required: true,
+      default:Date.now
     },
     amount: {
       type: Number,
@@ -25,5 +26,5 @@ const expenseSchema = new mongoose.Schema({
   });
   
   const expenseModel = mongoose.model('Expense', expenseSchema);
-  module.exports = {expenseModel};
+  module.exports = expenseModel;
   

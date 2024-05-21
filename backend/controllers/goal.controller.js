@@ -6,13 +6,12 @@ const userModel = require("../models/user.model");
 // @route POST /api/goal
 // @access private
 const addGoal = asyncHandler(async (req, res) => {
-    const { goalName, targetAmount, currentAmount, targetDate, startDate, description } = req.body;
+    let { goalName, targetAmount, currentAmount, targetDate, startDate, description } = req.body;
     const currentUser = await userModel.findById(req.user._id)
     if (!currentUser) {
         res.status(401);
         throw new Error(`User not Logged in`);
     }
-    if(!startDate) startDate = Date.now;
     const goal = await goalModel.create({
         userID: req.user._id,
         goalName,
@@ -54,7 +53,7 @@ const getGoal = asyncHandler(async (req, res) => {
         throw new Error(`User not Logged in`);
     }
     const goal = await goalModel.find({_id: req.params.id, userID: currentUser._id})
-    if (!goal) {
+    if (goal.length === 0) {
         res.status(404);
         throw new Error("Invalid Goal id");
     }
@@ -75,14 +74,16 @@ const updateGoal = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error("Goal not found");
     }
-    goal.goalName = req.body.goalName || goal.goalName;
-    goal.targetAmount = req.body.targetAmount || goal.targetAmount;
-    goal.currentAmount = req.body.currentAmount || goal.currentAmount;
-    goal.startDate = req.body.startDate || goal.startDate;
-    goal.targetDate = req.body.targetDate || goal.targetDate;
-    goal.description = req.body.description || goal.description;
-    await goal.save()
-    res.status(200).json({message: "Goal successfully updated", goal});
+    
+    const updatedGoal = await goalModel.findByIdAndUpdate(req.params.id, {
+        goalName: req.body.goalName || goal.goalName,
+    targetAmount: req.body.targetAmount || goal.targetAmount,
+    currentAmount: req.body.currentAmount || goal.currentAmount,
+    startDate: req.body.startDate || goal.startDate,
+    targetDate: req.body.targetDate || goal.targetDate,
+    description: req.body.description || goal.description,
+    }, {new: true})
+    res.status(200).json({message: "Goal successfully updated", updatedGoal});
 })
 
 // @desc delete a requested goal
@@ -99,8 +100,8 @@ const deleteGoal = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error("Goal not found");
     }
-    await goal.remove()
-    res.status(200).json({message: "Goal removed successfully", goal});
+    const deletedGoal = await goalModel.findByIdAndDelete(req.params.id);
+    res.status(200).json({message: "Goal removed successfully", deletedGoal});
 })
 
 module.exports = { addGoal, getAllGoals, getGoal, updateGoal, deleteGoal }
