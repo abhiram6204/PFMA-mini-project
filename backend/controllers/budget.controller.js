@@ -6,7 +6,7 @@ const userModel = require("../models/user.model");
 // @route POST /api/budget
 // @access private
 const addBudget = asyncHandler(async (req, res) => {
-  const { category, amount, startDate, endDate } = req.body;
+  let { category, amount, startDate, endDate } = req.body;
   const currentUser = await userModel.findById(req.user._id)
   if (!currentUser) {
     res.status(401);
@@ -18,9 +18,10 @@ const addBudget = asyncHandler(async (req, res) => {
     category,
     amount,
     spentAmount: 0,
-    startDate,
-    endDate
+    // startDate,
+    // endDate
   });
+  console.log(budget);
   res
     .status(201)
     .json({ message: "new budget added successfully", budget });
@@ -29,7 +30,7 @@ const addBudget = asyncHandler(async (req, res) => {
 // @desc returning all the budgets for the current user
 // @route GET /api/budget
 // @access private
-const getAllBudget = asyncHandler(async (req, res) => {
+const getAllBudgets = asyncHandler(async (req, res) => {
   const currentUser = await userModel.findById(req.user._id)
   if (!currentUser) {
     res.status(401);
@@ -74,12 +75,14 @@ const updateBudget = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Invalid budget id");
   }
-  budget.category = req.body.category || budget.category;
-  budget.amount = req.body.amount || budget.amount;
-  budget.endDate = req.body.endDate || budget.endDate;
-  budget.startDate = req.body.startDate || budget.startDate;
-  await budget.save();
-  res.status(200).json({ message: "budget updated successfully", budget });
+
+  const updatedBudget = await budgetModel.findByIdAndUpdate(req.params.id, {
+    category: req.body.category || budget.category,
+    amount: req.body.amount || budget.amount,
+    endDate: req.body.endDate || budget.endDate,
+    startDate: req.body.startDate || budget.startDate,
+  }, {new: true});
+  res.status(200).json({ message: "budget updated successfully", updatedBudget });
 })
 
 // @desc deleting the requested budget
@@ -91,15 +94,15 @@ const deleteBudget = asyncHandler(async (req, res) => {
     res.status(401);
     throw new Error(`User not logged in`);
   }
-  const budget = await budgetModel.find({ _id: req.params.id, userID: currentUser._id });
+  const budget = await budgetModel.findByIdAndDelete({ _id: req.params.id, userID: currentUser._id });
   if (!budget) {
     res.status(404);
     throw new Error("Invalid budget id");
   }
-  await budget.remove();
+  
   res.status(200).json({ message: "budget deleted successfully", budget });
 });
 
-module.exports = { addBudget, getAllBudget, getBudget, deleteBudget, updateBudget }
+module.exports = { addBudget, getAllBudgets, getBudget, deleteBudget, updateBudget }
 
 

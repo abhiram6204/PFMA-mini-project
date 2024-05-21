@@ -30,7 +30,7 @@ const addExpense = asyncHandler(async (req, res) => {
     }
     const expense = await expenseModel.create({
         userID: req.user._id,
-        date: req.body.date || Date.now,
+        date: req.body.date,
         amount: req.body.amount,
         category: req.body.category,
         description: req.body.description || " "
@@ -66,11 +66,11 @@ const updateExpense = asyncHandler(async (req, res) => {
         throw new Error(`User not logged in`);
     }
     const updatedExpense = await expenseModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updateExpense) {
+    if (!updatedExpense) {
         res.status(404);
         throw new Error("Expense not found for the user");
     }
-    res.status(200).json({ message: "Expense updated successfully" }, updateExpense);
+    res.status(200).json({ message: "Expense updated successfully" , updatedExpense});
 });
 
 // @desc deleting the requested budget
@@ -87,7 +87,7 @@ const deleteExpense = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error("Expense not found for the user");
     }
-    res.status(200).json({ message: "Expense deleted successfully" }, expense);
+    res.status(200).json({ message: "Expense deleted successfully" , expense});
 });
 
 module.exports = {

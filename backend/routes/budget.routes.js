@@ -9,10 +9,10 @@ const {
 } = require("../controllers/budget.controller");
 const router = express.Router();
 
-router.post("/", getAllBudgets);
+router.post("/", addBudget)
+.get("/", getAllBudgets);
 router.route("/:id")
     .get(getBudget)
-    .post(addBudget)
     .patch(updateBudget)
     .delete(deleteBudget);
 
