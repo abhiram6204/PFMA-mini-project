@@ -1,73 +1,99 @@
-const expenseModel=require('../models/expense.model')
-const user=require("../models/user.model")
-// const expenseModel=require('../routes/expense.routes')
-// const user
-// async function 
+const asyncHandler = require("express-async-handler");
+const expenseModel = require('../models/expense.model')
+const userModel = require("../models/user.model")
 
-// Controller function to get all expenses
-const GetAllExpenses = async (req, res) => {
-    try {
-        const expenses = await expenseModel.find();
-        res.json(expenses);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+// @desc returning all the expenses for the current user
+// @route GET /api/expense
+// @access private
+const getAllExpenses = asyncHandler(async (req, res) => {
+    const currentUser = await userModel.findById(req.user._id)
+    if (!currentUser) {
+        res.status(401);
+        throw new Error(`User not logged in`);
     }
-};
+    const expenses = await expenseModel.find();
+    if (!expenses) {
+        res.status(404);
+        throw new Error("Expenses not found");
+    }
+    res.status(200).json({ message: "Expenses found for the currect user", expenses });
+});
 
-// Controller function to create a new expense
-const AddExpense = async (req, res) => {
-    const expense = new expenseModel({
-        userID: req.body.userID,
-        date: req.body.date,
+// @desc add an expense for the current user
+// @route POST /api/expense
+// @access private
+const addExpense = asyncHandler(async (req, res) => {
+    const currentUser = await userModel.findById(req.user._id)
+    if (!currentUser) {
+        res.status(401);
+        throw new Error(`User not logged in`);
+    }
+    const expense = await expenseModel.create({
+        userID: req.user._id,
+        date: req.body.date || Date.now,
         amount: req.body.amount,
         category: req.body.category,
-        description: req.body.description
+        description: req.body.description || " "
     });
-    try {
-        const newExpense = await expense.save();
-        res.status(201).json(newExpense);
-    } catch (err) {
-        res.status(400).json({ message: err.message });
-    }
-};
+    const newExpense = await expense.save();
+    res.status(201).json({ message: "Expense added successfully", newExpense });
+});
 
-// Controller function to get a specific expense by ID
-const GetExpenseById = async (req, res) => {
-    try {
-        const expense = await expenseModel.findById(req.params.id);
-        if (!expense) {
-            return res.status(404).json({ message: 'Expense not found' });
-        }
-        res.json(expense);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+// @desc returning the expense requested for the current user
+// @route GET /api/expense
+// @access private
+const getExpense = asyncHandler(async (req, res) => {
+    const currentUser = await userModel.findById(req.user._id)
+    if (!currentUser) {
+        res.status(401);
+        throw new Error(`User not logged in`);
     }
-};
+    const expense = await expenseModel.find({ _id: req.params.id, userID: currentUser._id });
+    if (!expense) {
+        res.status(404);
+        throw new Error('Expense not found');
+    }
+    res.status(200).json({ message: "Expense found for the current user", expense })
+});
 
-// Controller function to update an existing expense
-const UpdateExpenseById = async (req, res) => {
-    try {
-        const updatedExpense = await expenseModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        res.json(updatedExpense);
-    } catch (err) {
-        res.status(400).json({ message: err.message });
+// @desc updating the requested expense
+// @route PATCH /api/expense/:id
+// @access private
+const updateExpense = asyncHandler(async (req, res) => {
+    const currentUser = await userModel.findById(req.user._id)
+    if (!currentUser) {
+        res.status(401);
+        throw new Error(`User not logged in`);
     }
-};
+    const updatedExpense = await expenseModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updateExpense) {
+        res.status(404);
+        throw new Error("Expense not found for the user");
+    }
+    res.status(200).json({ message: "Expense updated successfully" }, updateExpense);
+});
 
-// Controller function to delete an expense
-const DeleteExpense = async (req, res) => {
-    try {
-        await expenseModel.findByIdAndDelete(req.params.id);
-        res.json({ message: 'Expense deleted' });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+// @desc deleting the requested budget
+// @route DELETE /api/expense/:id
+// @access private
+const deleteExpense = asyncHandler(async (req, res) => {
+    const currentUser = await userModel.findById(req.user._id)
+    if (!currentUser) {
+        res.status(401);
+        throw new Error(`User not logged in`);
     }
-};
+    const expense = await expenseModel.findByIdAndDelete(req.params.id);
+    if (!expense) {
+        res.status(404);
+        throw new Error("Expense not found for the user");
+    }
+    res.status(200).json({ message: "Expense deleted successfully" }, expense);
+});
 
 module.exports = {
-    GetAllExpenses,
-    AddExpense,
-    GetExpenseById,
-    UpdateExpenseById,
-    DeleteExpense
+    getAllExpenses,
+    addExpense,
+    getExpense,
+    updateExpense,
+    deleteExpense
 };
