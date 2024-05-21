@@ -5,7 +5,7 @@ const {
   getExpenses,
   getIncome,
   getSummary
-} = require("../controllers/saving.controller");
+} = require("../controllers/investment.controller");
 const router = express.Router();
 
 router.get("/summary", getSummary);
