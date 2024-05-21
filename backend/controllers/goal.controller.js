@@ -1,96 +1,106 @@
 const asyncHandler = require("express-async-handler");
-const Goal = require("../models/income.model");
-const User = require("../models/user.model");
+const goalModel = require("../models/goal.model");
+const userModel = require("../models/user.model");
 
-// add a new goal
-
+// @desc add a goal for the current user
+// @route POST /api/goal
+// @access private
 const addGoal = asyncHandler(async (req, res) => {
-    const { goalName, targetAmount, currentAmount, targetDate, description } = req.body;
-    const currentUser = await User.findById(req.user._id)
+    const { goalName, targetAmount, currentAmount, targetDate, startDate, description } = req.body;
+    const currentUser = await userModel.findById(req.user._id)
     if (!currentUser) {
-        res.status(400);
-        throw new Error(`There is no user with the ID ${req.user._id}`);
+        res.status(401);
+        throw new Error(`User not Logged in`);
     }
-    const goal = await Income.create({
+    if(!startDate) startDate = Date.now;
+    const goal = await goalModel.create({
         userID: req.user._id,
         goalName,
         targetAmount,
         currentAmount,
         targetDate,
+        startDate,
         description
     });
-    if (!goal) {
-        res.status(400);
-        throw new Error(" data invalid");
-    }
     res
         .status(201)
-        .json({ _id: goal._id, goalName: goal.goalName, targetAmount: targetAmount, user: req.user._id });
+        .json({message: "Goal set successfully", goal});
 });
 
-//display all goals
+// @desc get all goals for the current user
+// @route GET /api/goal
+// @access private
 const getAllGoals = asyncHandler(async (req, res) => {
-    const currentUser = await User.findById(req.user._id)
+    const currentUser = await userModel.findById(req.user._id)
     if (!currentUser) {
-        res.status(400);
-        throw new Error(`There is no user with the ID ${req.user._id}`);
+        res.status(401);
+        throw new Error(`User not Logged in`);
     }
-    const goal = await Goal.find({ userID: currentUser._id })
-    if (!goal) {
-        res.status(400);
-        throw new Error(" data invalid");
+    const goals = await goalModel.find({ userID: currentUser._id })
+    if (!goals) {
+        res.status(404);
+        throw new Error("Goals for the user not found");
     }
-    res.status(200).json(goal);
+    res.status(200).json({message: "Goals found", goals});
 })
 
-//display goals with particular source
+// @desc get a goal for the current user
+// @route GET /api/goal/:id
+// @access private
 const getGoal = asyncHandler(async (req, res) => {
-    const currentUser = await User.findById(req.user._id)
+    const currentUser = await userModel.findById(req.user._id)
     if (!currentUser) {
-        res.status(400);
-        throw new Error(`There is no user with the ID ${req.user._id}`);
+        res.status(401);
+        throw new Error(`User not Logged in`);
     }
-    const goal = await Goal.find({_id:req.params.id})
+    const goal = await goalModel.find({_id: req.params.id, userID: currentUser._id})
     if (!goal) {
-        res.status(400);
-        throw new Error(" data invalid");
-        }
-        res.status(200).json(goal);
-})
-//update goal
-const updateGoal = asyncHandler(async (req, res) => {
-    const currentUser = await User.findById(req.user._id)
-    if (!currentUser) {
-        res.status(400);
-        throw new Error(`There is no user with the ID ${req.user._id}`);
+        res.status(404);
+        throw new Error("Invalid Goal id");
     }
-    const goal = await Goal.findById(req.params.id)
-    if (!goal) {
-        res.status(400);
-        throw new Error(" data invalid");
-        }
-        goal.goalName = req.body.goalName;
-        goal.targetAmount = req.body.targetAmount;
-        goal.currentAmount=req.body.currentAmount;
-        goal.targetDate=req.body.targetAmount;
-        goal.description=req.body.description;
-        await goal.save()
-        res.status(200).json(income);
-})
-//delete goal
-const deleteGoal = asyncHandler(async (req, res) => {
-    const currentUser = await User.findById(req.user._id)
-    if (!currentUser) {
-        res.status(400);
-        throw new Error(`There is no user with the ID ${req.user._id}`);
-        }
-        const goal = await Goal.findById(req.params.id)
-        if (!goal) {
-            res.status(400);
-            throw new Error(" data invalid");
-            }
-            await goal.remove()
-            res.status(200).json(goal);
+    res.status(200).json({message: "Goal found", goal});
 })
 
-module.exports={addGoal,getAllGoals,getGoal,updateGoal,deleteGoal}
+// @desc update a requested goal
+// @route PATCH /api/goal/:id
+// @access private
+const updateGoal = asyncHandler(async (req, res) => {
+    const currentUser = await userModel.findById(req.user._id)
+    if (!currentUser) {
+        res.status(401);
+        throw new Error(`User not Logged in`);
+    }
+    const goal = await goalModel.find({_id: req.params.id, userID: currentUser._id})
+    if (!goal) {
+        res.status(404);
+        throw new Error("Goal not found");
+    }
+    goal.goalName = req.body.goalName || goal.goalName;
+    goal.targetAmount = req.body.targetAmount || goal.targetAmount;
+    goal.currentAmount = req.body.currentAmount || goal.currentAmount;
+    goal.startDate = req.body.startDate || goal.startDate;
+    goal.targetDate = req.body.targetDate || goal.targetDate;
+    goal.description = req.body.description || goal.description;
+    await goal.save()
+    res.status(200).json({message: "Goal successfully updated", goal});
+})
+
+// @desc delete a requested goal
+// @route DELETE /api/goal/:id
+// @access private
+const deleteGoal = asyncHandler(async (req, res) => {
+    const currentUser = await userModel.findById(req.user._id)
+    if (!currentUser) {
+        res.status(401);
+        throw new Error(`User not Logged in`);
+    }
+    const goal = await goalModel.find({_id: req.params.id, userID: currentUser._id})
+    if (!goal) {
+        res.status(404);
+        throw new Error("Goal not found");
+    }
+    await goal.remove()
+    res.status(200).json({message: "Goal removed successfully", goal});
+})
+
+module.exports = { addGoal, getAllGoals, getGoal, updateGoal, deleteGoal }
