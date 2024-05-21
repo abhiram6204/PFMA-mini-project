@@ -6,13 +6,14 @@ const {
   addSaving,
   updateSaving,
   deleteSaving
-} = require("../controllers/saving.controller");
+} = require("../controllers/investment.controller");
 const router = express.Router();
 
-router.post("/", getAllSavings);
+router.get("/", getAllSavings);
+router.post("/",addSaving)
 router.route("/:id")
     .get(getSaving)
-    .post(addSaving)
+    // .post(addSaving)
     .patch(updateSaving)
     .delete(deleteSaving);
 
