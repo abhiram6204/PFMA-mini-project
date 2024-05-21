@@ -9,11 +9,11 @@ const {
 } = require("../controllers/income.controller");
 const router = express.Router();
 
-router.post("/", getAllIncome);
+router.post("/", addIncome)
+  .get("/", getAllIncome);
 router.route("/:id")
-    .get(getIncome)
-    .post(addIncome)
-    .patch(updateIncome)
-    .delete(deleteIncome);
+  .get(getIncome)
+  .patch(updateIncome)
+  .delete(deleteIncome);
 
 module.exports = router;

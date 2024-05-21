@@ -36,7 +36,9 @@ const loginUser = asyncHandler(async (req, res) => {
   const user = await userModel.findOne({ email });
 
   if (user && (await bcrypt.compare(password, user.password))) {
-    jwt.sign(req.body, process.env.ACCESS, (err, token) => {
+    jwt.sign({
+      user: user
+    }, process.env.SECRET, {expiresIn: "1h"}, (err, token) => {
       if (err) {
         res.status(401);
         throw new Error("Invalid user credentials");

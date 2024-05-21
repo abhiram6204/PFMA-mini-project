@@ -6,14 +6,15 @@ const userModel = require("../models/user.model");
 // @route POST /api/income
 // @access private
 const addIncome = asyncHandler(async (req, res) => {
-    const { date, amount, source, description } = req.body;
+    let { date, amount, source, description } = req.body;
+    console.log(req.user);
     const currentUser = await userModel.findById(req.user._id)
     if (!currentUser) {
         res.status(401);
         throw new Error(`User not logged in`);
     }
     if (!date) {
-        date = Date.now;
+        // date = Date.now;
     }
     const income = await incomeModel.create({
         userID: req.user._id,
@@ -23,14 +24,15 @@ const addIncome = asyncHandler(async (req, res) => {
         description
     });
     res
-        .status(201)
-        .json({ message: "Income source successfully added", income });
+    .status(201)
+    .json({ message: "Income source successfully added", income });
 });
 
 // @desc returning all the income sources for the current user
 // @route GET /api/income
 // @access private
 const getAllIncome = asyncHandler(async (req, res) => {
+    console.log(req.body);
     const currentUser = await userModel.findById(req.user._id);
     if (!currentUser) {
         res.status(401);
@@ -75,11 +77,12 @@ const updateIncome = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error("Income sources not found");
     }
-    income.date = req.body.date || income.date;
-    income.amount = req.body.amount || income.amount;
-    income.source = req.body.source || income.source;
-    income.description = req.body.description || income.description;
-    await income.save();
+    await incomeModel.findByIdAndUpdate(req.params.id, {
+        date: req.body.date || income.date,
+        amount: req.body.amount || income.amount,
+        source: req.body.source || income.source,
+        description: req.body.description || income.description,
+    }, {new: true});
     res.status(200).json({ message: "Income source successfully updated", income });
 })
 
@@ -92,12 +95,11 @@ const deleteIncome = asyncHandler(async (req, res) => {
         res.status(401);
         throw new Error(`User not logged in`);
     }
-    const income = await incomeModel.find({_id: req.params.id, userID: currentUser._id})
+    const income = await incomeModel.findByIdAndDelete({_id: req.params.id, userID: currentUser._id})
     if (!income) {
         res.status(404);
         throw new Error("Income sources not found");
     }
-    await income.remove()
     res.status(200).json({message: "Income source deleted successfully", income});
 })
 

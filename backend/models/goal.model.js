@@ -24,7 +24,7 @@ const goalSchema = new mongoose.Schema({
   },
   targetDate: {
     type: Date,
-    required: true,
+    // required: true,
   },
   description: {
     type: String,
@@ -33,4 +33,4 @@ const goalSchema = new mongoose.Schema({
 });
 
 const goalModel = mongoose.model("Goal", goalSchema);
-module.exports = { goalModel };
+module.exports = goalModel;
