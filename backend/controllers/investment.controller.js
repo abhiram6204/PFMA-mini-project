@@ -1,4 +1,5 @@
-const { investmentModel } = require("../models/investment.model");
+const investmentModel  = require("../models/investment.model");
+const userModel = require("../models/user.model");
 const user=require("../models/user.model")
 // Controller to get a single saving by ID
 const getSaving = async (req, res) => {
@@ -17,7 +18,7 @@ const getSaving = async (req, res) => {
 const getAllSavings = async (req, res) => {
   try {
     const savings = await investmentModel.find();
-    res.status(200).json({ success: true, data: savings });
+    res.status(200).json(savings);
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -50,18 +51,29 @@ const deleteSaving = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
-//controller for addSaving 
-const addSaving= async(req,res)=>
-    {
-        const {userId,investmentName,amountInvested,currentValue, startData,description}=req.body;
-        try{
-        const saving=await investmentModel.create({userId,investmentName,amountInvested,currentValue, startData,description});
-        res.status(201).json({success:true, data:saving });
-        }
-        catch(error)
-        {
-            res.status(401).json({success:false,data:error.message});
-        }
-    };
+
+const addSaving = async (req, res) => {
+  const currentUser = await userModel.findById(req.user._id);
+  const { investmentName, amountInvested, currentValue, startDate, description } = req.body;
+  try {
+      if (!investmentName || !amountInvested || !startDate) {
+          return res.status(400).json({ success: false, error: "Please provide investment name, amount invested, and start date" });
+      }
+
+      const saving = await investmentModel.create({
+          userID: req.user._id,
+          investmentName,
+          amountInvested,
+          currentValue,
+          startDate,
+          description
+      });
+
+      res.status(201).json({ success: true, data: saving });
+  } catch (error) {
+      res.status(401).json({ success: false, data: error.message });
+  }
+};
+
 module.exports={getSaving,getAllSavings,addSaving,updateSaving,deleteSaving};
 
