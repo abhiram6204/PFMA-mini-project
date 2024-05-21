@@ -21,7 +21,6 @@ const addBudget = asyncHandler(async (req, res) => {
     // startDate,
     // endDate
   });
-  console.log(budget);
   res
     .status(201)
     .json({ message: "new budget added successfully", budget });
@@ -37,7 +36,7 @@ const getAllBudgets = asyncHandler(async (req, res) => {
     throw new Error(`User not logged in`);
   }
   const budgets = await budgetModel.find({ userID: req.user._id });
-  if (!budgets) {
+  if (budgets.length === 0) {
     res.status(404);
     throw new Error("No budget details found");
   }
@@ -48,13 +47,13 @@ const getAllBudgets = asyncHandler(async (req, res) => {
 // @route GET /api/budget/:id
 // @access private
 const getBudget = asyncHandler(async (req, res) => {
-  const currentUser = await userModel.find(req.user._id)
+  const currentUser = await userModel.findById(req.user._id);
   if (!currentUser) {
     res.status(401);
     throw new Error(`User not logged in`);
   }
-  const budget = await budgetModel.find({ _id: req.params.id, userID: req.user._id });
-  if (!budget) {
+  const budget = await budgetModel.find({ _id: req.params.id, userID: currentUser._id });
+  if (budget.length === 0) {
     res.status(404);
     throw new Error("Invalid budget id");
   }
@@ -70,7 +69,7 @@ const updateBudget = asyncHandler(async (req, res) => {
     res.status(401);
     throw new Error(`User not logged in`);
   }
-  const budget = await budgetModel.find({ _id: req.params.id, userID: req.user._id });
+  const budget = await budgetModel.findOne({ _id: req.params.id, userID: req.user._id });
   if (!budget) {
     res.status(404);
     throw new Error("Invalid budget id");

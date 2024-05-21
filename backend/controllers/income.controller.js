@@ -39,7 +39,7 @@ const getAllIncome = asyncHandler(async (req, res) => {
         throw new Error(`User not logged in`);
     }
     const income = await incomeModel.find({ userID: currentUser._id })
-    if (!income) {
+    if (income.length === 0) {
         res.status(404);
         throw new Error("Income sources not found");
     }
@@ -56,7 +56,7 @@ const getIncome = asyncHandler(async (req, res) => {
         throw new Error(`User not logged in`);
     }
     const income = await incomeModel.find({_id: req.params.id, userID: currentUser._id});
-    if (!income) {
+    if (income.length === 0) {
         res.status(404);
         throw new Error("Income sources not found");
     }

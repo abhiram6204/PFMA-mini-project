@@ -1,79 +1,99 @@
-const investmentModel  = require("../models/investment.model");
+const investmentModel = require("../models/investment.model");
 const userModel = require("../models/user.model");
-const user=require("../models/user.model")
-// Controller to get a single saving by ID
-const getSaving = async (req, res) => {
-  try {
-    const saving = await investmentModel.findById(req.params.id);
-    if (!saving) {
-      return res.status(404).json({ success: false, error: "Saving not found" });
-    }
-    res.status(200).json({ success: true, data: saving });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+const asyncHandler = require("express-async-handler");
+
+// @desc return the required investment for the user
+// @route GET /api/saving/:id
+// @access private
+const getSaving = asyncHandler(async (req, res) => {
+  const currentUser = await userModel.findById(req.user._id)
+  if (!currentUser) {
+    res.status(401);
+    throw new Error(`User not logged in`);
   }
-};
 
-// Controller to get all savings
-const getAllSavings = async (req, res) => {
-  try {
-    const savings = await investmentModel.find();
-    res.status(200).json(savings);
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+  const investment = await investmentModel.findById(req.params.id);
+  if (!investment) {
+    res.status(404);
+    throw new Error("Investment not found");
   }
-};
+  res.status(200).json({ message: "Investment found successfully", investment });
+});
 
-
-// Controller to update a saving
-const updateSaving = async (req, res) => {
-  try {
-    const { userID, investmentName, amountInvested, currentValue, startDate, description } = req.body;
-    const saving = await investmentModel.findByIdAndUpdate(req.params.id, { userID, investmentName, amountInvested, currentValue, startDate, description }, { new: true });
-    if (!saving) {
-      return res.status(404).json({ success: false, error: "Saving not found" });
-    }
-    res.status(200).json({ success: true, data: saving });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+// @desc return all the investments for the user
+// @route GET /api/saving
+// @access private
+const getAllSavings = asyncHandler(async (req, res) => {
+  const currentUser = await userModel.findById(req.user._id)
+  if (!currentUser) {
+    res.status(401);
+    throw new Error(`User not logged in`);
   }
-};
-
-// Controller to delete a saving
-const deleteSaving = async (req, res) => {
-  try {
-    const saving = await investmentModel.findByIdAndDelete(req.params.id);
-    if (!saving) {
-      return res.status(404).json({ success: false, error: "Saving not found" });
-    }
-    res.status(200).json({ success: true, data: {} });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+  const investments = await investmentModel.find();
+  if (investments.length === 0) {
+    res.status(404);
+    throw new Error("Investments not found");
   }
-};
+  res.status(200).json({ message: "Investments found successfully", investments });
+});
 
-const addSaving = async (req, res) => {
-  const currentUser = await userModel.findById(req.user._id);
-  const { investmentName, amountInvested, currentValue, startDate, description } = req.body;
-  try {
-      if (!investmentName || !amountInvested || !startDate) {
-          return res.status(400).json({ success: false, error: "Please provide investment name, amount invested, and start date" });
-      }
 
-      const saving = await investmentModel.create({
-          userID: req.user._id,
-          investmentName,
-          amountInvested,
-          currentValue,
-          startDate,
-          description
-      });
-
-      res.status(201).json({ success: true, data: saving });
-  } catch (error) {
-      res.status(401).json({ success: false, data: error.message });
+// @desc update the required investment
+// @route PATCH /api/saving/:id
+// @access private
+const updateSaving = asyncHandler(async (req, res) => {
+  const currentUser = await userModel.findById(req.user._id)
+  if (!currentUser) {
+    res.status(401);
+    throw new Error(`User not logged in`);
   }
-};
+  const investment = await investmentModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  if (!investment) {
+    res.status(404);
+    throw new Error("Investment not found");
+  }
+  res.status(200).json({ message: "Investment updated successfully", investment });
+});
 
-module.exports={getSaving,getAllSavings,addSaving,updateSaving,deleteSaving};
+// @desc delete the required investment
+// @route DELETE /api/saving/:id
+// @access private
+const deleteSaving = asyncHandler(async (req, res) => {
+  const currentUser = await userModel.findById(req.user._id)
+  if (!currentUser) {
+    res.status(401);
+    throw new Error(`User not logged in`);
+  }
+  const investment = await investmentModel.findByIdAndDelete(req.params.id);
+  if (!investment) {
+    res.status(404);
+    throw new Error("Investment not found");
+  }
+  res.status(200).json({ message: "Investment deleted successfully", investment });
+});
+
+// @desc add an investment
+// @route POST /api/saving
+// @access private
+const addSaving = asyncHandler(async (req, res) => {
+  const currentUser = await userModel.findById(req.user._id)
+  if (!currentUser) {
+    res.status(401);
+    throw new Error(`User not logged in`);
+  }
+  const {investmentName, amountInvested} = req.body;
+
+  if (!investmentName || !amountInvested ) {
+    return res.status(400).json({ success: false, error: "Please provide investment name, amount invested, and start date" });
+  }
+
+  const investment = await investmentModel.create({
+    userID: req.user._id,
+    ...req.body
+  });
+
+  res.status(201).json({ message: "Investment created successfully", investment });
+});
+
+module.exports = { getSaving, getAllSavings, addSaving, updateSaving, deleteSaving };
 
