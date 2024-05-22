@@ -36,7 +36,7 @@ const getAllGoals = asyncHandler(async (req, res) => {
         throw new Error(`User not Logged in`);
     }
     const goals = await goalModel.find({ userID: currentUser._id })
-    if (!goals) {
+    if (goals.length === 0) {
         res.status(404);
         throw new Error("Goals for the user not found");
     }
