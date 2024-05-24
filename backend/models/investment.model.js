@@ -23,7 +23,6 @@ const investmentSchema = new mongoose.Schema({
   startDate: {
     type: Date,
     required: true,
-    
     default:Date.now
   },
   description: {
