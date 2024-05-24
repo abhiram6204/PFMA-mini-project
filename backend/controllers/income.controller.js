@@ -77,13 +77,13 @@ const updateIncome = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error("Income sources not found");
     }
-    await incomeModel.findByIdAndUpdate(req.params.id, {
+    const updatedIncome = await incomeModel.findByIdAndUpdate(req.params.id, {
         date: req.body.date || income.date,
         amount: req.body.amount || income.amount,
         source: req.body.source || income.source,
         description: req.body.description || income.description,
     }, {new: true});
-    res.status(200).json({ message: "Income source successfully updated", income });
+    res.status(200).json({ message: "Income source successfully updated", updatedIncome });
 })
 
 // @desc deleting the requested income source

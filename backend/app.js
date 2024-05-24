@@ -1,12 +1,13 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const cors=require("cors")
 require("dotenv").config();
 const errorHandler = require("./middleware/errorHandling");
 
 const app = express();
 const port = process.env.PORT || 3000;
-
+app.use(cors())
 app.use(express.json());
 
 const userRoutes = require("./routes/user.routes");
@@ -30,7 +31,7 @@ app.use("/api/budget", validateToken, budgetRoutes);
 app.use("/api/saving", validateToken, savingRoutes);
 app.use("/api/goal", validateToken, goalRoutes);
 // app.use("/api/dashboard", validateToken, dashboardRoutes);
-app.use(errorHandler);.
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Listening to port ${port}...`);

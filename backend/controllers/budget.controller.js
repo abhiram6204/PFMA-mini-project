@@ -18,8 +18,8 @@ const addBudget = asyncHandler(async (req, res) => {
     category,
     amount,
     spentAmount: 0,
-    // startDate,
-    // endDate
+    startDate,
+    endDate
   });
   res
     .status(201)

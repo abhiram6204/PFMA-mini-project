@@ -16,7 +16,7 @@ const budgetSchema = new mongoose.Schema({
     },
     spentAmount: {
         type: Number,
-        required: true,
+        // required: true,
         default: 0
     },
     startDate: {
@@ -26,7 +26,7 @@ const budgetSchema = new mongoose.Schema({
     },
     endDate: {
       type: Date,
-      // required: true
+      required: true
     }
   });
   
