@@ -37,8 +37,7 @@ const getAllGoals = asyncHandler(async (req, res) => {
     }
     const goals = await goalModel.find({ userID: currentUser._id })
     if (!goals) {
-        res.status(404);
-        throw new Error("Goals for the user not found");
+        res.status(200).json({message: "no goals found", goals});
     }
     res.status(200).json({message: "Goals found", goals});
 })

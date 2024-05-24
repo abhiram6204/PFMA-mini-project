@@ -13,8 +13,7 @@ const getAllExpenses = asyncHandler(async (req, res) => {
     }
     const expenses = await expenseModel.find();
     if (!expenses) {
-        res.status(404);
-        throw new Error("Expenses not found");
+        res.status(200).json({ message: "no expenses found for the currect user", expenses });
     }
     res.status(200).json({ message: "Expenses found for the currect user", expenses });
 });

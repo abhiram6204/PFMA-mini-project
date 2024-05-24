@@ -42,7 +42,7 @@ export default function Investment() {
       },
     });
     setInvestments(response.data.investments);
-  };
+  }
   useEffect(() => getInvestment, []);
 
   const deleteInvestment = (id) => {

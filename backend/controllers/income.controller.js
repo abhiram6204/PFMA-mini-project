@@ -38,8 +38,7 @@ const getAllIncome = asyncHandler(async (req, res) => {
     }
     const income = await incomeModel.find({ userID: currentUser._id })
     if (!income) {
-        res.status(404);
-        throw new Error("Income sources not found");
+        res.status(200).json({ message: "no Income sources found for the current user", income });
     }
     res.status(200).json({ message: "Income sources successfully returned", income });
 })

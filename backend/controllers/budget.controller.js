@@ -37,8 +37,7 @@ const getAllBudgets = asyncHandler(async (req, res) => {
   }
   const budgets = await budgetModel.find({ userID: req.user._id });
   if (!budgets) {
-    res.status(404);
-    throw new Error("No budget details found");
+    res.status(200).json({ message: "No budgets found", budgets });
   }
   res.status(200).json({ message: "budget details found", budgets });
 });

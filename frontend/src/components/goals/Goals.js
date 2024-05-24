@@ -44,7 +44,7 @@ export default function Goals() {
             },
         });
         setGoals(response.data.goals);
-    };
+    }
     useEffect(() => getGoal, []);
 
     const deleteGoal = (id) => {
