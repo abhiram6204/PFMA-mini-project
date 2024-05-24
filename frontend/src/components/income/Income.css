@@ -1,0 +1,74 @@
+.income-component {
+    display: flex;
+    flex-wrap: wrap;
+}
+.income, .edit-income {
+    margin: 5px;
+    padding: 20px;
+    border: 2px solid #655DBB;
+    background-color: white;
+    border-radius: 5px;
+    flex-grow: 1;
+}
+.component-heading {
+    margin-bottom: 20px;
+    display: inline-block;
+}
+.income input, .edit-income input {
+    padding: 10px 20px;
+    background-color: aliceblue;
+    border: 1px solid ;
+    margin: 5px;
+    border-radius: 5px;
+    width: 250px;
+}
+.income textarea, .edit-income textarea {
+    padding: 10px 20px;
+    background-color: aliceblue;
+    border: 1px solid ;
+    margin: 5px;
+    border-radius: 5px;
+    width: 250px;
+}
+.edit-income textarea {
+    max-width: 850px;
+}
+#submit {
+    background-color: #655DBB;
+    color: white;
+    cursor: pointer;
+}
+.income-list {
+    margin: 5px;
+    padding: 20px;
+    border: 2px solid #655DBB;
+    background-color: white;
+    border-radius: 5px;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    height: 50vh;
+    overflow: scroll;
+}
+.income-list table, th, td {
+    border: 1px solid #655DBB;
+    border-collapse: collapse;
+    padding: 10px 20px;
+}
+.delete, .update {
+    padding: 8px 16px;
+    margin: 2px;
+    border: 1px solid black;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.delete {
+    background-color: red;
+    color: white;
+}
+.update {
+    background-color: green;
+    color: white;
+}
+

@@ -1,106 +1,104 @@
 const asyncHandler = require("express-async-handler");
-const Income = require("../models/income.model");
-const User = require("../models/user.model");
+const incomeModel = require("../models/income.model");
+const userModel = require("../models/user.model");
 
-// Add income of an user
+// @desc add an income source for the current user
+// @route POST /api/income
+// @access private
 const addIncome = asyncHandler(async (req, res) => {
-  const { amount, source, description } = req.body;
-  const currentUser = await User.findById(req.user._id);
-  if (!currentUser) {
-    res.status(400);
-    throw new Error(`There is no user with the ID ${req.user._id}`);
-  }
-  const income = await Income.create({
-    userID: req.user._id,
-    amount,
-    source,
-    description,
-  });
-  if (!income) {
-    res.status(400);
-    throw new Error(" data invalid");
-  }
-  res
-    .status(201)
-    .json({
-      _id: income.ID,
-      incomeName: incomeName.Name,
-      incomeAmount: income.incomeAmount,
-      user: req.user._id,
+    let { date, amount, source, description } = req.body;
+    const currentUser = await userModel.findById(req.user._id)
+    if (!currentUser) {
+        res.status(401);
+        throw new Error(`User not logged in`);
+    }
+    if (!date) {
+        // date = Date.now;
+    }
+    const income = await incomeModel.create({
+        userID: req.user._id,
+        date,
+        amount,
+        source,
+        description
     });
+    res
+    .status(201)
+    .json({ message: "Income source successfully added", income });
 });
 
-//Display all sources of income of a user
-
+// @desc returning all the income sources for the current user
+// @route GET /api/income
+// @access private
 const getAllIncome = asyncHandler(async (req, res) => {
-  const currentUser = await User.findById(req.user._id);
-  if (!currentUser) {
-    res.status(400);
-    throw new Error(`There is no user with the ID ${req.user._id}`);
-  }
-  const income = await Income.find({ userID: currentUser._id });
-  if (!income) {
-    res.status(400);
-    throw new Error(" data invalid");
-  }
-  res.status(200).json(income);
-});
+    const currentUser = await userModel.findById(req.user._id);
+    if (!currentUser) {
+        res.status(401);
+        throw new Error(`User not logged in`);
+    }
+    const income = await incomeModel.find({ userID: currentUser._id })
+    if (!income) {
+        res.status(404);
+        throw new Error("Income sources not found");
+    }
+    res.status(200).json({ message: "Income sources successfully returned", income });
+})
 
-//display income from a particular source
-
+// @desc returning income source for the current user by id
+// @route GET /api/income/:id
+// @access private
 const getIncome = asyncHandler(async (req, res) => {
-  const currentUser = await User.findById(req.user._id);
-  if (!currentUser) {
-    res.status(400);
-    throw new Error(`There is no user with the ID ${req.user._id}`);
-  }
-  const income = await Income.find({ incomeID: req.params.id });
-  if (!income) {
-    res.status(400);
-    throw new Error("data invalid");
-  }
-  res.status(200).json(income);
-});
+    const currentUser = await userModel.findById(req.user._id)
+    if (!currentUser) {
+        res.status(401);
+        throw new Error(`User not logged in`);
+    }
+    const income = await incomeModel.find({_id: req.params.id, userID: currentUser._id});
+    if (!income) {
+        res.status(404);
+        throw new Error("Income sources not found");
+    }
+    res.status(200).json({ message: "Income source found", income });
+})
 
-// update the income
+// @desc updating requesting income source
+// @route PATCH /api/income/:id
+// @access private
 const updateIncome = asyncHandler(async (req, res) => {
-  const currentUser = await User.findById(req.user._id);
-  if (!currentUser) {
-    res.status(400);
-    throw new Error(`There is no user with the ID ${req.user._id}`);
-  }
-  const income = await Income.findById(req.params.id);
-  if (!income) {
-    res.status(400);
-    throw new Error(" data invalid");
-  }
-  income.incomeID = req.body.incomeID;
-  income.incomeName = req.body.incomeName;
-  income.incomeAmount = req.body.incomeAmount;
-  await income.save();
-  res.status(200).json(income);
-});
+    const currentUser = await userModel.findById(req.user._id)
+    if (!currentUser) {
+        res.status(401);
+        throw new Error(`User not logged in`);
+    }
+    const income = await incomeModel.find({_id: req.params.id, userID: currentUser._id})
+    if (!income) {
+        res.status(404);
+        throw new Error("Income sources not found");
+    }
+    const updatedIncome = await incomeModel.findByIdAndUpdate(req.params.id, {
+        date: req.body.date || income.date,
+        amount: req.body.amount || income.amount,
+        source: req.body.source || income.source,
+        description: req.body.description || income.description,
+    }, {new: true});
+    res.status(200).json({ message: "Income source successfully updated", updatedIncome });
+})
 
-//delete the income
+// @desc deleting the requested income source
+// @route DELETE /api/income/:id
+// @access private
 const deleteIncome = asyncHandler(async (req, res) => {
-  const currentUser = await User.findById(req.params.id);
-  if (!currentUser) {
-    res.status(400);
-    throw new Error(`There is no user with the ID ${req.user._id}`);
-  }
-  const income = await Income.findById(req.params.id);
-  if (!income) {
-    res.status(400);
-    throw new Error(" data invalid");
-  }
-  await income.remove();
-  res.status(200).json(income);
-});
+    const currentUser = await userModel.findById(req.user._id);
+    if (!currentUser) {
+        res.status(401);
+        throw new Error(`User not logged in`);
+    }
+    const income = await incomeModel.findByIdAndDelete({_id: req.params.id, userID: currentUser._id})
+    if (!income) {
+        res.status(404);
+        throw new Error("Income sources not found");
+    }
+    res.status(200).json({message: "Income source deleted successfully", income});
+})
 
-module.exports = {
-  addIncome,
-  getAllIncome,
-  getIncome,
-  updateIncome,
-  deleteIncome,
-};
+module.exports = { addIncome, getAllIncome, getIncome, updateIncome, deleteIncome }

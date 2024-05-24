@@ -1,78 +1,107 @@
 const asyncHandler = require("express-async-handler");
-const Budget = require("../models/budget.model");
-const User = require("../models/user.model");
+const budgetModel = require("../models/budget.model");
+const userModel = require("../models/user.model");
 
-//add a new budget
+// @desc add an budget for the current user
+// @route POST /api/budget
+// @access private
 const addBudget = asyncHandler(async (req, res) => {
-    const {category,amount,spentAmount,endDate } = req.body;
-    const currentUser=await User.findById(req.user._id)
-    if (!currentUser) {
-      res.status(400);
-      throw new Error(`There is no user with the ID ${req.user._id}`);
-    }
-    const budget = await Budget.create({
-      userID: req.user._id,
-      category,
-      amount,
-      spentAmount,
-      endDate
-    });
-    if (!budget) {
-      res.status(400);
-      throw new Error(" data invalid");
-    }
-    res
-      .status(201)
-      .json({ _id: budget._id, category: budget.category, budgetAmount: budget.amount,spentAmount:budget.spentAmount,startDate:budget.startDate,endDate:budget.endDate });
+  let { category, amount, startDate, endDate } = req.body;
+  const currentUser = await userModel.findById(req.user._id)
+  if (!currentUser) {
+    res.status(401);
+    throw new Error(`User not logged in`);
+  }
+  if (!startDate) startDate = Date.now;
+  const budget = await budgetModel.create({
+    userID: req.user._id,
+    category,
+    amount,
+    spentAmount: 0,
+    // startDate,
+    // endDate
   });
+  res
+    .status(201)
+    .json({ message: "new budget added successfully", budget });
+});
 
-  //display all budgets
-  const getAllBudget = asyncHandler(async (req, res) => {
-    const budgets = await Budget.find({userID:req.user._id});
-    if (!budgets) {
-      res.status(400);
-      throw new Error("There is no budget");
-      }
-      res.status(200).json(budgets);
-      });
+// @desc returning all the budgets for the current user
+// @route GET /api/budget
+// @access private
+const getAllBudgets = asyncHandler(async (req, res) => {
+  const currentUser = await userModel.findById(req.user._id)
+  if (!currentUser) {
+    res.status(401);
+    throw new Error(`User not logged in`);
+  }
+  const budgets = await budgetModel.find({ userID: req.user._id });
+  if (!budgets) {
+    res.status(404);
+    throw new Error("No budget details found");
+  }
+  res.status(200).json({ message: "budget details found", budgets });
+});
 
-  //display a specific budget
-  const getBudget = asyncHandler(async (req, res) => {
-    const budget = await Budget.findById({_id:req.params.id,userID:req.user._id});
-    if (!budget) {
-      res.status(400);
-      throw new Error("There is no budget with the ID " + req.params.id);
-      }
-      res.status(200).json(budget);
-      });
+// @desc returning a budget for the current user by id
+// @route GET /api/budget/:id
+// @access private
+const getBudget = asyncHandler(async (req, res) => {
+  const currentUser = await userModel.find(req.user._id)
+  if (!currentUser) {
+    res.status(401);
+    throw new Error(`User not logged in`);
+  }
+  const budget = await budgetModel.find({ _id: req.params.id, userID: req.user._id });
+  if (!budget) {
+    res.status(404);
+    throw new Error("Invalid budget id");
+  }
+  res.status(200).json({ message: "budget details found", budget });
+});
 
-  //update budget
-  const updateBudget = asyncHandler(async (req, res) => {
-    const budget = await Budget.findById(req.params.id);
-    if (!budget) {
-      res.status(400);
-      throw new Error("There is no budget with the ID " + req.params.id);
-      }
-      budget.category = req.body.category;
-      budget.amount = req.body.amount;
-      budget.spentAmount=req.body.spentAmount;
-      budget.endDate=req.body.endDate;
-      budget.startDate=req.body.startDate;
-      await budget.save();
-      res.status(200).json(budget);
-    })
+// @desc updating the requested budget
+// @route PATCH /api/budget/:id
+// @access private
+const updateBudget = asyncHandler(async (req, res) => {
+  const currentUser = await userModel.findById(req.user._id)
+  if (!currentUser) {
+    res.status(401);
+    throw new Error(`User not logged in`);
+  }
+  const budget = await budgetModel.find({ _id: req.params.id, userID: req.user._id });
+  if (!budget) {
+    res.status(404);
+    throw new Error("Invalid budget id");
+  }
 
-  //delete budget
-  const deleteBudget = asyncHandler(async (req, res) => {
-    const budget = await Budget.findById(req.params.id);
-    if (!budget) {
-      res.status(400);
-      throw new Error("There is no budget with the ID " + req.params.id);
-      }
-      await budget.remove();
-      res.status(200).json({ id: req.params.id });
-      });
-  module.exports={addBudget,getAllBudget,getBudget,deleteBudget,updateBudget}
+  const updatedBudget = await budgetModel.findByIdAndUpdate(req.params.id, {
+    category: req.body.category || budget.category,
+    amount: req.body.amount || budget.amount,
+    endDate: req.body.endDate || budget.endDate,
+    startDate: req.body.startDate || budget.startDate,
+  }, {new: true});
+  res.status(200).json({ message: "budget updated successfully", updatedBudget });
+})
 
-
+// @desc deleting the requested budget
+// @route DELETE /api/budget/:id
+// @access private
+const deleteBudget = asyncHandler(async (req, res) => {
+  const currentUser = await userModel.findById(req.user._id)
+  if (!currentUser) {
+    res.status(401);
+    throw new Error(`User not logged in`);
+  }
+  const budget = await budgetModel.findByIdAndDelete({ _id: req.params.id, userID: currentUser._id });
+  if (!budget) {
+    res.status(404);
+    throw new Error("Invalid budget id");
+  }
   
+  res.status(200).json({ message: "budget deleted successfully", budget });
+});
+
+module.exports = { addBudget, getAllBudgets, getBudget, deleteBudget, updateBudget }
+
+

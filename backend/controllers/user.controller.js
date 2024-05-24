@@ -1,20 +1,20 @@
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("../models/user.model");
+const userModel = require("../models/user.model");
 
 // @desc register a user
 // @route POST /api/auth/register
 // @access public
 const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
-  const availableUser = await User.findOne({ $or: [{ email }, { username }] });
+  const availableUser = await userModel.findOne({ $or: [{ email }, { username }] });
   if (availableUser) {
     res.status(400);
     throw new Error("Email or Username already in use");
   }
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await User.create({
+  const user = await userModel.create({
     username,
     email,
     password: hashedPassword,
@@ -33,10 +33,12 @@ const registerUser = asyncHandler(async (req, res) => {
 // @access public
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
+  const user = await userModel.findOne({ email });
 
   if (user && (await bcrypt.compare(password, user.password))) {
-    jwt.sign(req.body, process.env.ACCESS, (err, token) => {
+    jwt.sign({
+      user: user
+    }, process.env.SECRET, {expiresIn: "1h"}, (err, token) => {
       if (err) {
         res.status(401);
         throw new Error("Invalid user credentials");
@@ -58,7 +60,7 @@ const currentUser = asyncHandler(async (req, res) => {
     res.status(401);
     throw new Error("UnAuthorized user");
   }
-  const user = await User.findById(req.user.id);
+  const user = await userModel.findById(req.user.id);
   if (!req.user.currentGroup) {
     res.status(404);
     throw new Error("Not found: user not in any group");

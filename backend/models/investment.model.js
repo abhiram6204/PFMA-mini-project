@@ -29,4 +29,4 @@ const investmentSchema = new mongoose.Schema({
 });
 
 const investmentModel = mongoose.model("Investment", investmentSchema);
-module.exports = { investmentModel };
+module.exports = investmentModel;
