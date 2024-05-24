@@ -1,0 +1,26 @@
+.register {
+    margin: 5px;
+    padding: 20px;
+    border: 2px solid #655DBB;
+    background-color: white;
+    border-radius: 5px;
+    display: inline-block;
+    margin-top: 5%;
+}
+.register .component-heading {
+    margin-bottom: 20px;
+}
+.register input {
+    padding: 10px 20px;
+    background-color: aliceblue;
+    border: 1px solid ;
+    margin: 5px;
+    border-radius: 5px;
+    width: 300px;
+    
+}
+.register #submit {
+    width: 90px;
+    background-color: #655DBB;
+    color: white;
+}
