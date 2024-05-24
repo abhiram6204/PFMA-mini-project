@@ -31,7 +31,7 @@ export default function Budget() {
             }
         );
         if (response.status === 201) {
-            setBudgets([...budgets, response.data.budgets]);
+            setBudgets([...budgets, response.data.budget]);
         }
     };
 

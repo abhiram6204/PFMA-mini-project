@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 
 
-import Home from "./components/Home"
-import Login from "./components/Login"
-import Register from "./components/Register"
+import Home from "./components/home/Home"
+import Login from "./components/login/Login"
+import Register from "./components/register/Register"
 import Income from "./components/income/Income"
 import Expense  from "./components/expense/Expense"
 import Budget from "./components/budget/Budget"

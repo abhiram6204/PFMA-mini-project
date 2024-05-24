@@ -29,7 +29,8 @@ export default function Expense() {
             }
         );
         if (response.status === 201) {
-            setExpenses([...expenses, response.data.expenses]);
+            setExpenses([...expenses, response.data.newExpense]);
+            console.log(expenses);
         }
     };
 

@@ -31,7 +31,7 @@ export default function Investment() {
       }
     );
     if (response.status === 201) {
-      setInvestments([...investments, response.data.investments]);
+      setInvestments([...investments, response.data.investment]);
     }
   };
 

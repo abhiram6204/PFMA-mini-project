@@ -33,7 +33,7 @@ export default function Goals() {
             }
         );
         if (response.status === 201) {
-            setGoals([...goals, response.data.goals]);
+            setGoals([...goals, response.data.goal]);
         }
     };
 
