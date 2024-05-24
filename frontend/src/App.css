@@ -1,0 +1,23 @@
+.nav {
+    width: 100vw;
+}
+.nav ul {
+    background-color: #3E54AC;
+    display: flex;
+    width: 100vw;
+}
+.nav li {
+    list-style-type: none;
+    padding: 15px 30px;
+}
+.nav .nav-link {   
+    color: white;
+    text-decoration: none;
+}
+.nav li:hover {
+    background-color: #ECF2FF;
+    color: #3E54AC;
+}
+.nav li:hover .nav-link {
+    color: #3E54AC;
+}

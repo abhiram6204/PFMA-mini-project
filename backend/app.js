@@ -7,7 +7,6 @@ const errorHandler = require("./middleware/errorHandling");
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(errorHandler);
 app.use(express.json());
 
 const userRoutes = require("./routes/user.routes");
@@ -20,8 +19,8 @@ const goalRoutes = require("./routes/goal.routes");
 const { validateToken } = require("./middleware/validateToken");
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/finance-manager")
-  .then(() => console.log("Connected to DataBase successfully..."));
+.connect("mongodb://127.0.0.1:27017/finance-manager")
+.then(() => console.log("Connected to DataBase successfully..."));
 
 // connecting api endpoint to routes
 app.use("/api/auth", userRoutes);
@@ -31,6 +30,7 @@ app.use("/api/budget", validateToken, budgetRoutes);
 app.use("/api/saving", validateToken, savingRoutes);
 app.use("/api/goal", validateToken, goalRoutes);
 // app.use("/api/dashboard", validateToken, dashboardRoutes);
+app.use(errorHandler);.
 
 app.listen(port, () => {
   console.log(`Listening to port ${port}...`);
