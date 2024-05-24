@@ -12,7 +12,7 @@ const getAllExpenses = asyncHandler(async (req, res) => {
         throw new Error(`User not logged in`);
     }
     const expenses = await expenseModel.find();
-    if (expenses.length === 0) {
+    if (!expenses) {
         res.status(404);
         throw new Error("Expenses not found");
     }
@@ -49,7 +49,7 @@ const getExpense = asyncHandler(async (req, res) => {
         throw new Error(`User not logged in`);
     }
     const expense = await expenseModel.find({ _id: req.params.id, userID: currentUser._id });
-    if (expense.length === 0) {
+    if (!expense) {
         res.status(404);
         throw new Error('Expense not found');
     }

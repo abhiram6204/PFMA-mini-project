@@ -40,7 +40,7 @@ export default function Income() {
       },
     });
     setIncomes(response.data.income);
-  };
+  }
   useEffect(() => getIncome, []);
 
   const deleteIncome = (id) => {
