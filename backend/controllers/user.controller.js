@@ -72,7 +72,7 @@ const currentUser = asyncHandler(async (req, res) => {
 // @route GET /api/auth/logout
 // @access private
 const logoutUser = asyncHandler((req, res) => {
-  // Instruct the client to delete the token
+  // client should delete the token from the localstorage
   res.status(200).json({ message: "Logout successful" });
 });
 

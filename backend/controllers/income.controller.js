@@ -7,7 +7,6 @@ const userModel = require("../models/user.model");
 // @access private
 const addIncome = asyncHandler(async (req, res) => {
     let { date, amount, source, description } = req.body;
-    console.log(req.user);
     const currentUser = await userModel.findById(req.user._id)
     if (!currentUser) {
         res.status(401);
@@ -32,14 +31,13 @@ const addIncome = asyncHandler(async (req, res) => {
 // @route GET /api/income
 // @access private
 const getAllIncome = asyncHandler(async (req, res) => {
-    console.log(req.body);
     const currentUser = await userModel.findById(req.user._id);
     if (!currentUser) {
         res.status(401);
         throw new Error(`User not logged in`);
     }
     const income = await incomeModel.find({ userID: currentUser._id })
-    if (income.length === 0) {
+    if (!income) {
         res.status(404);
         throw new Error("Income sources not found");
     }
@@ -56,7 +54,7 @@ const getIncome = asyncHandler(async (req, res) => {
         throw new Error(`User not logged in`);
     }
     const income = await incomeModel.find({_id: req.params.id, userID: currentUser._id});
-    if (income.length === 0) {
+    if (!income) {
         res.status(404);
         throw new Error("Income sources not found");
     }

@@ -48,6 +48,7 @@
     display: flex;
     align-items: center;
     flex-direction: column;
+    height: 50vh;
     overflow: scroll;
 }
 .income-list table, th, td {

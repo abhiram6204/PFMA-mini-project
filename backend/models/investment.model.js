@@ -8,27 +8,24 @@ const investmentSchema = new mongoose.Schema({
   },
   investmentName: {
     type: String,
-    required: true
+    required: true,
   },
   amountInvested: {
     type: Number,
     required: true,
-    default:0
   },
   currentValue: {
     type: Number,
     required: true,
-    default:0
   },
   startDate: {
     type: Date,
     required: true,
-    default:Date.now
   },
   description: {
     type: String,
     default: "",
-  }
+  },
 });
 
 const investmentModel = mongoose.model("Investment", investmentSchema);

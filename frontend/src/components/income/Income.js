@@ -4,12 +4,7 @@ import axios from "axios";
 
 export default function Income() {
   const [incomes, setIncomes] = useState([]);
-  const [edit, setEdit] = useState({
-    date: Date.now,
-    amount: 10000,
-    source: "Source of Income...",
-    description: "Description of you income source...",
-  });
+  const [edit, setEdit] = useState();
   const [showEdit, setEditVisibility] = useState(false);
 
   const handleSubmit = async (event) => {
@@ -159,33 +154,31 @@ export default function Income() {
         </div>
       </div>
       {showEdit && (
-        <div className="income-stats">
-          <div className="edit-income">
-            <h2 className="component-heading">Edit Fields</h2>
-            <form
-              className="update-income-form"
-              onSubmit={(event) => handleEdit(event, edit)}
-            >
-              <input type="date" id="edit-date" placeholder={`${edit.date}`} />
-              <input
-                type="number"
-                id="edit-amount"
-                placeholder={`${edit.amount}`}
-              />
-              <input
-                type="text"
-                id="edit-source"
-                placeholder={`${edit.source}`}
-              />
-              <br />
-              <textarea
-                id="edit-description"
-                placeholder={`${edit.description}`}
-              />
-              <br />
-              <input type="submit" id="submit" />
-            </form>
-          </div>
+        <div className="edit-income">
+          <h2 className="component-heading">Edit Fields</h2>
+          <form
+            className="update-income-form"
+            onSubmit={(event) => handleEdit(event, edit)}
+          >
+            <input type="date" id="edit-date" placeholder={`${edit.date}`} />
+            <input
+              type="number"
+              id="edit-amount"
+              placeholder={`${edit.amount}`}
+            />
+            <input
+              type="text"
+              id="edit-source"
+              placeholder={`${edit.source}`}
+            />
+            <br />
+            <textarea
+              id="edit-description"
+              placeholder={`${edit.description}`}
+            />
+            <br />
+            <input type="submit" id="submit" />
+          </form>
         </div>
       )}
     </>
