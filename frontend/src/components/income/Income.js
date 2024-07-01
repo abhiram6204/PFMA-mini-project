@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Income.css";
 import axios from "axios";
-
+  
 export default function Income() {
   const [incomes, setIncomes] = useState([]);
   const [edit, setEdit] = useState();
