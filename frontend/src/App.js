@@ -9,6 +9,7 @@ import Expense from "./components/expense/Expense"
 import Budget from "./components/budget/Budget"
 import Goals from "./components/goals/Goals"
 import Investment from "./components/investment/Investment"
+import Dashboard from "./components/dashboard/Dashboard";
 import "./App.css"
 
 function App() {
@@ -46,6 +47,7 @@ function App() {
               <li><Link className="nav-link" to="/budget">Budget</Link></li>
               <li><Link className="nav-link" to="/saving">Savings and Investments</Link></li>
               <li><Link className="nav-link" to="/goal">Goals</Link></li>
+              <li><Link className="nav-link" to="/Dashboard">Dashboard</Link></li>
               <li className="nav-link logout" onClick={handleLogout}>Logout</li>
             </ul>
           )}
@@ -62,6 +64,7 @@ function App() {
           <Route path="/budget" element={<Budget />} />
           <Route path="/saving" element={<Investment />} />
           <Route path="/goal" element={<Goals />} />
+          <Route path="/Dashboard" element={<Dashboard />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </BrowserRouter>
